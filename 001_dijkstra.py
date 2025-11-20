@@ -1,24 +1,24 @@
-import networkx as nx           # Librería para crear y manipular la estructura del grafo (nodos y aristas)
-import matplotlib.pyplot as plt # Librería para dibujar el grafo en una ventana
-import time                     # Librería para controlar el tiempo 
-# --- CLASE VÉRTICE ---
-# Representa cada "bolita" o nodo del grafo.
+import networkx as nx           # Libreria para crear y manipular la estructura del grafo (nodos y aristas)
+import matplotlib.pyplot as plt # Libreria para dibujar el grafo en una ventana
+import time                     # Libreria para controlar el tiempo 
+
+#La clase Vertice representa cada nodo del grafo.
 class Vertice:
     def __init__(self, i):
-        self.id = i                 # Identificador del vértice (ej: 'A', 'B')
-        self.vecinos = []           # Lista de tuplas (vecino, peso) a los que está conectado
+        self.id = i                 # Identificador del vertice (ej: 'A', 'B')
+        self.vecinos = []           # Lista de tuplas (vecino, peso) a los que esta conectado
         self.visitado = False       # Bandera para saber si ya procesamos este nodo definitivamente
-        self.padre = None           # Guarda de qué nodo venimos (clave para reconstruir el camino al final)
+        self.padre = None           # Guarda de que nodo venimos (clave para reconstruir el camino al final)
         self.distancia = float('inf') # Distancia inicial es Infinito (desconocida)
 
-    # Método para conectar este vértice con otro
+    # Método para conectar este vertice con otro
     def agregar_vecino(self, v, p):
-        # Si el vecino no está ya en la lista, lo agregamos junto con el peso de la arista
+        # Si el vecino no esta ya en la lista, lo agregamos junto con el peso de la arista
         if v not in self.vecinos:
             self.vecinos.append((v, p))
 
-# --- CLASE GRAFO ---
-# Controla la lógica del algoritmo y almacena todos los vértices.
+
+# La clase Grafo controla la lógica del algoritmo y almacena todos los vertices.
 class Grafo:
     def __init__(self):
         self.vertices = {} # Diccionario para acceso rápido: {'A': ObjetoVerticeA, 'B': ObjetoVerticeB...}
@@ -34,7 +34,7 @@ class Grafo:
             self.vertices[a].agregar_vecino(b, p) # Conecta A con B
             self.vertices[b].agregar_vecino(a, p) # Conecta B con A
 
-    # Método auxiliar para encontrar el nodo no visitado con la menor distancia acumulada
+    # Metodo auxiliar para encontrar el nodo no visitado con la menor distancia acumulada
     def minimo(self, lista):
         if len(lista) > 0:
             # Suponemos que el primero es el menor
@@ -48,28 +48,28 @@ class Grafo:
             return v # Retorna el ID del vértice ganador
         return None
 
-    # Método para reconstruir el camino final una vez ejecutado Dijkstra
+    # Metodo para reconstruir el camino final una vez ejecutado Dijkstra
     def camino(self, a, b):
         camino = []
         actual = b
-        # Vamos hacia atrás: desde el destino (b) buscando a sus padres hasta llegar al inicio
+        # Vamos hacia atras: desde el destino (b) buscando a sus padres hasta llegar al inicio
         while actual is not None:
             camino.append(actual)
             actual = self.vertices[actual].padre
         camino.reverse() # Invertimos la lista para que vaya de Inicio -> Fin
         return [camino, self.vertices[b].distancia]
 
-    # Método auxiliar para ver el estado de todos los nodos en texto
+    # Metodo auxiliar para ver el estado de todos los nodos en texto
     def imprimir_grafo(self):
         for v in self.vertices:
             print(f"Vértice {v}: Distancia {self.vertices[v].distancia}, Padre: {self.vertices[v].padre}")
 
-    # --- ALGORITMO DE DIJKSTRA (SIMULACIÓN) ---
+    # implementacion del algoritmo de Dijkstra
     def dijkstra(self, a):
         print(f"\n--- INICIANDO SIMULACIÓN DIJKSTRA DESDE '{a}' ---")
         
         if a in self.vertices:
-            # 1. Inicialización
+            # 1. Inicializacion
             self.vertices[a].distancia = 0 # La distancia al nodo inicial siempre es 0
             actual = a
             noVisitados = [] # Lista de nodos pendientes por procesar
@@ -83,7 +83,7 @@ class Grafo:
 
             # 2. Bucle principal: Mientras queden nodos por visitar
             while len(noVisitados) > 0:
-                # Imprimimos estado actual para el efecto "Simulador"
+                # Imprimimos estado actual 
                 print(f"\n--> Visitando nodo actual: [{actual}]")
                 print(f"    Nodos pendientes por visitar: {noVisitados}")
                 time.sleep(1) # Pausa de 1 segundo para que el usuario pueda leer
@@ -91,23 +91,22 @@ class Grafo:
                 # 3. Revisamos a todos los vecinos del nodo actual
                 for vecino in self.vertices[actual].vecinos:
                     if self.vertices[vecino[0]].visitado == False:
-                        peso = vecino[1]        # Cuánto cuesta ir al vecino
+                        peso = vecino[1]        # Cuanto cuesta ir al vecino
                         nodo_vecino = vecino[0] # El ID del vecino (ej. 'B')
                         
                         print(f"    Analizando vecino '{nodo_vecino}' con peso de arista {peso}...", end=" ")
                         
                         # 4. RELAJACIÓN (Relaxation): El corazón de Dijkstra
-                        # Si la distancia hasta 'actual' + el peso del enlace es MENOR 
-                        # que la distancia que ya tenía el vecino, actualizamos.
+                        # Si la distancia hasta 'actual' + el peso del enlace es MENOR que la distancia que ya tenía el vecino, actualizamos.
                         if self.vertices[actual].distancia + peso < self.vertices[vecino[0]].distancia:
                             self.vertices[nodo_vecino].distancia = self.vertices[actual].distancia + peso
                             self.vertices[nodo_vecino].padre = actual # Guardamos que venimos de 'actual'
-                            print(f"¡Actualizado! Nuevo camino óptimo encontrado. Distancia acumulada: {self.vertices[nodo_vecino].distancia}")
+                            print(f"Actualizado, Nuevo camino óptimo encontrado. Distancia acumulada: {self.vertices[nodo_vecino].distancia}")
                         else:
                             print("No se actualiza (El camino que ya conocíamos era mejor o igual).")
-                        time.sleep(0.5) # Pequeña pausa para ver el análisis de cada vecino
+                        time.sleep(0.5) # Pequeña pausa para ver el analisis de cada vecino
 
-                # 5. Marcamos el nodo actual como visitado para no volver a él
+                # 5. Marcamos el nodo actual como visitado para no volver a el
                 self.vertices[actual].visitado = True
                 noVisitados.remove(actual)
                 
@@ -118,7 +117,7 @@ class Grafo:
                 if actual is None and len(noVisitados) > 0:
                     break
 
-# --- FUNCIÓN PARA GRAFICAR (PUNTOS EXTRA) ---
+# FUNCION PARA GRAFICAR 
 def graficar_resultado(grafo_obj, camino_optimo):
     # Creamos un objeto grafo de la librería NetworkX
     G = nx.Graph()
@@ -153,7 +152,7 @@ def graficar_resultado(grafo_obj, camino_optimo):
     plt.title("Simulación Gráfica - Algoritmo de Dijkstra")
     plt.show() # Mostrar ventana
 
-# --- BLOQUE PRINCIPAL DE EJECUCIÓN ---
+# --- BLOQUE PRINCIPAL DE EJECUCION ---
 if __name__ == "__main__":
     # Instanciamos el grafo
     g = Grafo()
@@ -166,7 +165,6 @@ if __name__ == "__main__":
     g.agregar_vertice('E')
 
     # Agregamos aristas (Conexiones y Pesos)
-    # Puedes cambiar estos valores para probar diferentes rutas
     g.agregar_arista('A', 'B', 1)
     g.agregar_arista('A', 'C', 4)
     g.agregar_arista('B', 'C', 2)
@@ -183,6 +181,6 @@ if __name__ == "__main__":
     print(f"El camino más corto de 'A' a 'E' es: {camino}")
     print(f"Costo total (Distancia): {distancia}")
     
-    # Mostramos el gráfico (Puntos extra)
+    # Mostramos el grafico
     print("\nAbríendo ventana gráfica...")
     graficar_resultado(g, camino)
